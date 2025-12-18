@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { 
     getAuth, 
     createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, // هذه هي الدالة التي كانت ناقصة
+    signInWithEmailAndPassword, 
     onAuthStateChanged, 
     signOut 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -14,22 +14,28 @@ import {
     query, 
     orderBy 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    getStorage, 
+    ref, 
+    uploadBytes, 
+    getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// --- ضع كود Firebase الخاص بك هنا ---
+// --- إعدادات فايربيس الخاصة بمشروعك ---
 const firebaseConfig = {
-  apiKey: "AIzaSyDrwbLi03PFZ2GKQEW91yH1oOk5kKBUS_I",
-  authDomain: "test-1-84926.firebaseapp.com",
-  projectId: "test-1-84926",
-  storageBucket: "test-1-84926.firebasestorage.app",
-  messagingSenderId: "83811607632",
-  appId: "1:83811607632:web:d4cce6d201fb864139dd55"
+    apiKey: "AIzaSyDrwbLi03PFZ2GKQEW91yH1oOk5kKBUS_I",
+    authDomain: "test-1-84926.firebaseapp.com",
+    projectId: "test-1-84926",
+    storageBucket: "test-1-84926.firebasestorage.app",
+    messagingSenderId: "83811607632",
+    appId: "1:83811607632:web:d4cce6d201fb864139dd55"
 };
-// ------------------------------------
 
-// تشغيل Firebase
+// تشغيل الخدمات
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // عناصر الواجهة
 const loginModal = document.getElementById('loginModal');
@@ -37,6 +43,7 @@ const authBtn = document.getElementById('authBtn');
 const addBookModal = document.getElementById('addBookModal');
 const addBookBtn = document.getElementById('addBookBtn');
 const booksGrid = document.getElementById('booksGrid');
+const btnText = document.getElementById('btnText');
 
 // إظهار وإخفاء النوافذ
 if (authBtn) {
@@ -50,7 +57,9 @@ if (authBtn) {
 }
 
 document.getElementById('closeModal').onclick = () => loginModal.classList.add('hidden');
-addBookBtn.onclick = () => addBookModal.classList.remove('hidden');
+if (addBookBtn) {
+    addBookBtn.onclick = () => addBookModal.classList.remove('hidden');
+}
 document.getElementById('closeBookModal').onclick = () => addBookModal.classList.add('hidden');
 
 // عملية تسجيل الدخول أو إنشاء الحساب
@@ -61,13 +70,11 @@ document.getElementById('submitAuth').onclick = async () => {
     if (!email || !password) return alert("يرجى إدخال البريد وكلمة المرور");
 
     try {
-        // المحاولة الأولى: تسجيل دخول
         await signInWithEmailAndPassword(auth, email, password);
         alert("أهلاً بك مرة أخرى!");
         loginModal.classList.add('hidden');
     } catch (error) {
-        // إذا فشل (بمعنى الحساب غير موجود)، نقوم بإنشاء حساب جديد
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
                 alert("تم إنشاء حسابك بنجاح!");
@@ -81,48 +88,46 @@ document.getElementById('submitAuth').onclick = async () => {
     }
 };
 
-// مراقبة حالة المستخدم
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        authBtn.innerText = "خروج";
-        document.getElementById('userStatus').innerText = user.email;
-        document.getElementById('userStatus').classList.remove('hidden');
-        addBookBtn.classList.remove('hidden');
-    } else {
-        authBtn.innerText = "تسجيل الدخول";
-        document.getElementById('userStatus').classList.add('hidden');
-        addBookBtn.classList.add('hidden');
-    }
-    loadBooks(); // تحميل الكتب فوراً عند فتح الصفحة
-});
-
-// إضافة كتاب جديد
+// إضافة كتاب جديد مع رفع الصورة
 document.getElementById('saveBook').onclick = async () => {
     const title = document.getElementById('bookTitle').value;
     const university = document.getElementById('uniSelect').value;
     const price = document.getElementById('bookPrice').value;
+    const imageFile = document.getElementById('bookImage').files[0];
 
-    if(!title || !price) return alert("يرجى ملء كافة التفاصيل");
+    if(!title || !price || !imageFile) return alert("يرجى تعبئة كافة الحقول واختيار صورة الكتاب");
 
+    btnText.innerText = "جاري النشر...";
+    
     try {
+        // 1. رفع الصورة إلى Storage
+        const imageRef = ref(storage, `books/${Date.now()}_${imageFile.name}`);
+        const snapshot = await uploadBytes(imageRef, imageFile);
+        const imageUrl = await getDownloadURL(snapshot.ref);
+
+        // 2. حفظ البيانات في Firestore
         await addDoc(collection(db, "books"), {
             title: title,
             university: university,
             price: price,
+            imageUrl: imageUrl,
             seller: auth.currentUser.email,
             createdAt: new Date()
         });
+
         alert("تم نشر إعلانك بنجاح!");
         addBookModal.classList.add('hidden');
-        loadBooks(); // تحديث القائمة بعد الإضافة
+        loadBooks(); 
     } catch (e) {
         alert("فشل النشر: " + e.message);
+    } finally {
+        btnText.innerText = "نشر الإعلان";
     }
 };
 
 // دالة تحميل وعرض الكتب من القاعدة
 async function loadBooks() {
-    booksGrid.innerHTML = '<p class="text-center col-span-full py-10 text-gray-400">جاري التحميل...</p>';
+    booksGrid.innerHTML = '<p class="text-center col-span-full py-10 text-gray-400">جاري تحميل الكتب...</p>';
     try {
         const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
@@ -136,13 +141,14 @@ async function loadBooks() {
         querySnapshot.forEach((doc) => {
             const book = doc.data();
             const card = `
-                <div class="bg-white rounded-2xl shadow-md overflow-hidden p-5 border border-gray-100 hover:shadow-xl transition">
-                    <span class="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-full">${book.university}</span>
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden p-4 border border-gray-100 hover:shadow-xl transition flex flex-col">
+                    <img src="${book.imageUrl}" class="w-full h-48 object-cover rounded-xl mb-3">
+                    <span class="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-full w-fit">${book.university}</span>
                     <h4 class="text-lg font-bold mt-3 text-gray-800">${book.title}</h4>
-                    <div class="mt-4 flex justify-between items-center">
+                    <div class="mt-auto pt-4 flex justify-between items-center">
                         <span class="text-green-600 font-bold text-xl">${book.price} د.أ</span>
-                        <button onclick="alert('تواصل مع البائع عبر: ${book.seller}')" 
-                            class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold hover:bg-blue-600 hover:text-white transition">
+                        <button onclick="window.location.href='mailto:${book.seller}'" 
+                            class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-600 hover:text-white transition">
                             مراسلة
                         </button>
                     </div>
@@ -151,7 +157,23 @@ async function loadBooks() {
             booksGrid.innerHTML += card;
         });
     } catch (e) {
-        console.error("Error loading books: ", e);
+        console.error("Error: ", e);
         booksGrid.innerHTML = '<p class="text-center col-span-full text-red-500">حدث خطأ أثناء تحميل البيانات.</p>';
     }
 }
+
+// مراقبة حالة المستخدم
+onAuthStateChanged(auth, (user) => {
+    const userStatus = document.getElementById('userStatus');
+    if (user) {
+        authBtn.innerText = "خروج";
+        userStatus.innerText = user.email;
+        userStatus.classList.remove('hidden');
+        addBookBtn.classList.remove('hidden');
+    } else {
+        authBtn.innerText = "تسجيل الدخول";
+        userStatus.classList.add('hidden');
+        addBookBtn.classList.add('hidden');
+    }
+    loadBooks();
+});
