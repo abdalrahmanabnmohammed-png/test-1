@@ -3,71 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق الكتب الجامعية الأردنية</title>
+    <title>كتابي الجامعي - للأردنيين</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; }
+        body { font-family: 'Tajawal', sans-serif; scroll-behavior: smooth; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
 
-    <nav class="bg-blue-700 text-white p-4 shadow-lg flex justify-between items-center">
-        <h1 class="text-2xl font-bold">كتابي الجامعي</h1>
-        <div>
-            <button class="bg-white text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-100">تسجيل الدخول</button>
+    <nav class="bg-blue-800 text-white p-4 shadow-xl sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tight">كتابي الجامعي 🇯🇴</h1>
+            <div class="flex gap-4 items-center">
+                <span id="userStatus" class="hidden text-sm bg-blue-700 px-3 py-1 rounded"></span>
+                <button id="authBtn" class="bg-yellow-400 text-blue-900 px-5 py-2 rounded-full font-bold hover:bg-yellow-300 transition">تسجيل الدخول</button>
+            </div>
         </div>
     </nav>
 
-    <header class="py-10 text-center bg-white border-b">
-        <h2 class="text-3xl font-bold mb-4">ابحث عن كتابك أو دوسيتك في أي جامعة أردنية</h2>
-        <div class="max-w-2xl mx-auto px-4">
-            <input type="text" placeholder="اسم الكتاب، الجامعة، أو الكلية..." class="w-full p-4 border rounded-full shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    <header class="bg-white py-12 px-4 shadow-sm text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">أكبر تجمع للكتب والدوسيات في الجامعات الأردنية</h2>
+        <p class="text-gray-600 mb-8 font-medium">بيع، اشترِ، أو تبادل كتبك مع زملائك بسهولة</p>
+        <div class="max-w-3xl mx-auto relative">
+            <input type="text" id="searchInput" placeholder="ابحث عن مادة، جامعة (مثلاً: التكنولوجيا)، أو كلية..." 
+                   class="w-full p-5 shadow-lg border-2 border-blue-100 rounded-2xl focus:border-blue-500 outline-none text-lg text-right">
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <main class="max-w-6xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-700">الكتب المضافة حديثاً</h3>
+            <button id="addBookBtn" class="hidden bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700">+ إضافة كتاب</button>
+        </div>
         
-        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-transform">
-            <img src="https://via.placeholder.com/300x200" alt="كتاب" class="w-full h-48 object-cover">
-            <div class="p-4">
-                <span class="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-1 rounded">الجامعة الأردنية</span>
-                <h3 class="text-xl font-bold mt-2">كتاب كالكولاس 101</h3>
-                <p class="text-gray-600">الحالة: نظيف جداً</p>
-                <div class="mt-4 flex justify-between items-center">
-                    <span class="text-green-600 font-bold text-lg">5 دنانير</span>
-                    <button class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">التفاصيل</button>
-                </div>
-            </div>
+        <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <p id="loadingMsg" class="text-center col-span-full text-gray-500 py-10">جاري تحميل الكتب...</p>
         </div>
-
-        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-transform">
-            <img src="https://via.placeholder.com/300x200" alt="كتاب" class="w-full h-48 object-cover">
-            <div class="p-4">
-                <span class="text-xs text-green-600 font-bold bg-green-100 px-2 py-1 rounded">جامعة العلوم والتكنولوجيا</span>
-                <h3 class="text-xl font-bold mt-2">تلخيص مادة الفيزياء 1</h3>
-                <p class="text-gray-600">الحالة: ورق مطبوع</p>
-                <div class="mt-4 flex justify-between items-center">
-                    <span class="text-green-600 font-bold text-lg">2 دينار</span>
-                    <button class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">التفاصيل</button>
-                </div>
-            </div>
-        </div>
-
     </main>
 
-    <footer class="text-center py-10 text-gray-500">
-        جميع الحقوق محفوظة - طلاب الجامعات الأردنية 2024
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <h2 class="text-2xl font-bold mb-2 text-center text-blue-900">أهلاً بك زميلنا</h2>
+            <p class="text-center text-gray-500 mb-6 text-sm">سجل دخولك للتواصل مع البائعين</p>
+            <input id="email" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 border rounded-xl mb-3 outline-none focus:ring-2 focus:ring-blue-500">
+            <input id="password" type="password" placeholder="كلمة المرور" class="w-full p-4 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-blue-500">
+            <button id="submitAuth" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800">دخول / إنشاء حساب</button>
+            <button id="closeModal" class="w-full mt-4 text-gray-400 hover:text-red-500 transition">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="addBookModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6 text-center text-green-700">عرض كتاب للبيع</h2>
+            <input id="bookTitle" type="text" placeholder="اسم الكتاب أو الدوسية" class="w-full p-3 border rounded-xl mb-3 outline-none">
+            <select id="uniSelect" class="w-full p-3 border rounded-xl mb-3 outline-none bg-white font-bold">
+                <option>الجامعة الأردنية</option>
+                <option>جامعة العلوم والتكنولوجيا</option>
+                <option>جامعة اليرموك</option>
+                <option>جامعة البلقاء التطبيقية</option>
+                <option>جامعة مؤتة</option>
+                <option>جامعة آل البيت</option>
+                <option>جامعة فيلادلفيا</option>
+                <option>جامعة عمان الأهلية</option>
+                <option>جامعة الزيتونة</option>
+                <option>جامعة الإسراء</option>
+                <option>جامعة العلوم التطبيقية</option>
+            </select>
+            <input id="bookPrice" type="number" placeholder="السعر بالدينار الأردني" class="w-full p-3 border rounded-xl mb-6 outline-none">
+            <button id="saveBook" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700">نشر الإعلان</button>
+            <button id="closeBookModal" class="w-full mt-4 text-gray-400">إلغاء</button>
+        </div>
+    </div>
+
+    <footer class="text-center py-12 text-gray-400 text-sm">
+        صُنع بحب لخدمة طلاب الجامعات الأردنية 🇯🇴
     </footer>
 
+    <script type="module" src="app.js"></script>
 </body>
 </html>
-
-<link rel="stylesheet" href="style.css">
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  // سنضيف بقية الكود هنا لاحقاً
-</script>
-
-<script type="module" src="app.js"></script>
