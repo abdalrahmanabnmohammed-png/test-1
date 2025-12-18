@@ -83,5 +83,19 @@
     </footer>
 
     <script type="module" src="app.js"></script>
+
+    <div id="chatBox" class="hidden fixed bottom-4 left-4 w-80 bg-white shadow-2xl rounded-t-2xl border z-[200]">
+    <div class="bg-blue-700 p-3 text-white rounded-t-2xl flex justify-between items-center">
+        <span id="chatWith" class="font-bold text-sm">المحادثة</span>
+        <button id="closeChat" class="text-xl">&times;</button>
+    </div>
+    <div id="messagesContainer" class="h-64 overflow-y-auto p-3 flex flex-col gap-2 bg-gray-50">
+        </div>
+    <div class="p-2 border-t flex gap-2">
+        <input id="chatInput" type="text" placeholder="اكتب رسالتك..." class="flex-1 p-2 border rounded-lg text-sm outline-none">
+        <button id="sendMsgBtn" class="bg-blue-600 text-white px-3 py-1 rounded-lg">إرسال</button>
+    </div>
+</div>
+    
 </body>
 </html>
