@@ -54,28 +54,29 @@
         </div>
     </div>
 
-    <div id="addBookModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-            <h2 class="text-2xl font-bold mb-6 text-center text-green-700">عرض كتاب للبيع</h2>
-            <input id="bookTitle" type="text" placeholder="اسم الكتاب أو الدوسية" class="w-full p-3 border rounded-xl mb-3 outline-none">
-            <select id="uniSelect" class="w-full p-3 border rounded-xl mb-3 outline-none bg-white font-bold">
-                <option>الجامعة الأردنية</option>
-                <option>جامعة العلوم والتكنولوجيا</option>
-                <option>جامعة اليرموك</option>
-                <option>جامعة البلقاء التطبيقية</option>
-                <option>جامعة مؤتة</option>
-                <option>جامعة آل البيت</option>
-                <option>جامعة فيلادلفيا</option>
-                <option>جامعة عمان الأهلية</option>
-                <option>جامعة الزيتونة</option>
-                <option>جامعة الإسراء</option>
-                <option>جامعة العلوم التطبيقية</option>
-            </select>
-            <input id="bookPrice" type="number" placeholder="السعر بالدينار الأردني" class="w-full p-3 border rounded-xl mb-6 outline-none">
-            <button id="saveBook" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700">نشر الإعلان</button>
-            <button id="closeBookModal" class="w-full mt-4 text-gray-400">إلغاء</button>
-        </div>
+<div id="addBookModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+        <h2 class="text-2xl font-bold mb-6 text-center text-green-700">عرض كتاب للبيع</h2>
+        <input id="bookTitle" type="text" placeholder="اسم الكتاب أو الدوسية" class="w-full p-3 border rounded-xl mb-3 outline-none">
+        
+        <label class="block mb-2 text-sm font-bold text-gray-700">صورة الكتاب:</label>
+        <input id="bookImage" type="file" accept="image/*" class="w-full p-2 border rounded-xl mb-3 text-sm">
+        
+        <select id="uniSelect" class="w-full p-3 border rounded-xl mb-3 outline-none bg-white font-bold">
+            <option>الجامعة الأردنية</option>
+            <option>جامعة العلوم والتكنولوجيا</option>
+            <option>جامعة اليرموك</option>
+            <option>جامعة البلقاء التطبيقية</option>
+        </select>
+        
+        <input id="bookPrice" type="number" placeholder="السعر بالدينار الأردني" class="w-full p-3 border rounded-xl mb-6 outline-none">
+        
+        <button id="saveBook" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700">
+            <span id="btnText">نشر الإعلان</span>
+        </button>
+        <button id="closeBookModal" class="w-full mt-4 text-gray-400">إلغاء</button>
     </div>
+</div>
 
     <footer class="text-center py-12 text-gray-400 text-sm">
         صُنع بحب لخدمة طلاب الجامعات الأردنية 🇯🇴
